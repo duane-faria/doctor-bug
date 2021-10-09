@@ -100,7 +100,7 @@ import img from "@/assets/icons/bug.svg";
 export default {
   data: () => ({
     openMobileMenu: false,
-    projectTitle: "doctor bug",
+    projectTitle: "bug doctor",
     img,
   }),
 };
