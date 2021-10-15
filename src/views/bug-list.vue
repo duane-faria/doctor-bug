@@ -3,7 +3,7 @@
     <header class="flex justify-between px-4">
       <h1 class="font-light">bugs abertos</h1>
       <Button type="success" @click="openInsertBug = true">
-        enviar bug
+        Novo
       </Button>
     </header>
     <data-table :headers="headers" :data="bugs" />
