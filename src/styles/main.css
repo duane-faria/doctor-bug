@@ -5,3 +5,9 @@
 @tailwind components;
 
 @tailwind utilities;
+
+* {
+  scrollbar-width: thin;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200&display=swap');

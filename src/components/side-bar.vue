@@ -1,7 +1,7 @@
 <template>
   <div class="relative min-h-screen md:flex">
     <!-- mobile menu bar -->
-    <div class="bg-gray-800 text-gray-100 flex justify-between md:hidden">
+    <div class="custom-bg text-gray-100 flex justify-between md:hidden">
       <!-- logo -->
       <a href="#" class="block p-4 text-white font-bold">{{ projectTitle }}</a>
 
@@ -29,8 +29,8 @@
 
     <!-- sidebar -->
     <div
-      :class="{ '-translate-x-full': openMobileMenu }"
-      class="sidebar bg-blue-800 text-blue-100 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform md:relative md:translate-x-0 transition duration-200 ease-in-out"
+      :class="{ '-translate-x-full': !openMobileMenu }"
+      class="sidebar custom-bg text-blue-100 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform md:relative md:translate-x-0 transition duration-200 ease-in-out"
     >
       <!-- logo -->
       <a href="#" class="text-white flex items-center space-x-2 px-4">
@@ -62,48 +62,46 @@
       <!-- nav -->
       <nav>
         <a
-          href="#"
-          class="block py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 hover:text-white"
+          @click="navigate(link.route)"
+          :class="{ 'bg-red-500': $route.name === link.route }"
+          class="cursor-pointer block py-2.5 px-4 rounded transition duration-200 hover:bg-red-500 hover:text-white"
+          v-for="(link, index) in links"
+          :key="link + index"
         >
-          Home
-        </a>
-        <a
-          href=""
-          class="block py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 hover:text-white"
-        >
-          About
-        </a>
-        <a
-          href=""
-          class="block py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 hover:text-white"
-        >
-          Features
-        </a>
-        <a
-          href=""
-          class="block py-2.5 px-4 rounded transition duration-200 hover:bg-blue-700 hover:text-white"
-        >
-          Pricing
+          {{ link.name }}
         </a>
       </nav>
-    </div>
-
-    <!-- content -->
-    <div class="flex-1 p-10 text-2xl font-bold">
-      content goes here
     </div>
   </div>
 </template>
 
 <script>
-import img from "@/assets/icons/bug.svg";
 export default {
   data: () => ({
     openMobileMenu: false,
     projectTitle: "bug doctor",
-    img,
+    activeMenu: 1,
+    links: [
+      {
+        name: "Usuários",
+        route: "Users",
+      },
+      {
+        name: "Problemas",
+        route: "BugList",
+      },
+    ],
   }),
+  methods: {
+    navigate(routeName) {
+      this.$router.push({ name: routeName });
+    },
+  },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.custom-bg {
+  background: #031e2d;
+}
+</style>
