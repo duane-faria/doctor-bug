@@ -8,12 +8,12 @@
           <div class="flex flex-auto flex-wrap"></div>
           <input
             class="p-1 px-2 appearance-none outline-none w-full text-gray-800  svelte-1l8159u"
-            v-model="searchingText"
+            v-model="select"
           />
           <div>
             <button
               class="cursor-pointer w-6 h-full flex items-center text-gray-400 outline-none focus:outline-none"
-              @click="searchingText = ''"
+              @click="select = ''"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -60,7 +60,7 @@
       </div>
       <div
         class="absolute shadow top-100 z-40 w-full lef-0 rounded max-h-select overflow-y-auto svelte-5uyqqj"
-        v-if="searchingText.length && showList"
+        v-if="showList"
       >
         <div class="flex flex-col w-full">
           <div
@@ -70,10 +70,11 @@
             :key="item"
           >
             <div
+              @click="setItem(item)"
               class="flex w-full items-center p-2 pl-2 border-transparent bg-white border-l-2 relative hover:bg-teal-600 hover:text-teal-100 hover:border-teal-600"
             >
               <div class="w-full items-center flex">
-                <div class="mx-2 leading-6" @click="setItem(item)">
+                <div class="mx-2 leading-6">
                   {{ item }}
                 </div>
               </div>
@@ -87,15 +88,27 @@
 
 <script>
 export default {
+  props: {
+    modelValue: { type: Object },
+  },
   data: () => ({
-    searchingText: "",
     items: ["Python", "Javascript", "Ruby"],
     showList: true,
   }),
   methods: {
     setItem(item) {
-      this.searchingText = item;
       this.showList = false;
+      this.select = item;
+    },
+  },
+  computed: {
+    select: {
+      get() {
+        return this.modelValue;
+      },
+      set(value) {
+        this.$emit("update:modelValue", value);
+      },
     },
   },
 };

@@ -1,5 +1,5 @@
 <template>
-  <modal v-model="open">
+  <modal v-model="isOpen">
     <template v-slot:content>
       <section class="flex items-center flex-col">
         <h2 class="font-semibold">
@@ -7,7 +7,7 @@
         </h2>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Relator</label>
-          <Select />
+          <Select v-model="bug.reporter" />
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Description</label>
@@ -25,25 +25,27 @@
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Ambiente</label>
-          <Select />
+          <Select v-model="bug.enviroment" />
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Responsável</label>
-          <Select />
+          <Select v-model="bug.responsible" />
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Prioridade</label>
-          <Select />
+          <Select v-model="bug.priority" />
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Status</label>
-          <Select />
+          <Select v-model="bug.status" />
         </div>
       </section>
     </template>
     <template v-slot:actions>
-      <Button @click="open = false">cancelar</Button>
-      <Button type="success">salvar</Button>
+      <Button @click="isOpen = false" :disabled="loading">cancelar</Button>
+      <Button type="success" @click="saveBug" :disabled="loading">
+        salvar
+      </Button>
     </template>
   </modal>
 </template>
@@ -54,6 +56,8 @@ import get from "lodash.get";
 import Modal from "@/components/modal";
 import Button from "@/components/button";
 import Select from "@/components/select";
+import bugService from "@/services/bug";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   components: {
@@ -62,19 +66,28 @@ export default {
     Select,
   },
   props: {
-    modelValue: { type: Boolean, default: false },
+    open: { type: Boolean, default: false },
   },
   data: () => ({
-    bug: {},
+    bug: {
+      reporter: "",
+      responsible: "",
+      enviroment: "",
+      description: "",
+      priority: "",
+      status: "",
+    },
+    loading: false,
   }),
   computed: {
-    open: {
+    ...mapGetters(["isLoading"]),
+    isOpen: {
       get() {
-        return this.modelValue;
+        return this.open;
       },
       set(value) {
         this.clear();
-        this.$emit("update:modelValue", value);
+        this.$emit("update:open", value);
       },
     },
     get() {
@@ -82,8 +95,21 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["setLoading"]),
     clear() {
       this.bug = {};
+    },
+    async saveBug() {
+      this.setLoading(true);
+      try {
+        await bugService.create(this.bug);
+        this.$emit("newBug", this.bug);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        this.setLoading(false);
+        this.isOpen = false;
+      }
     },
   },
 };

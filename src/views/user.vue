@@ -15,6 +15,7 @@
 import Button from "@/components/button";
 import InsertUserModal from "@/components/user-registration";
 import DataTable from "@/components/data-table";
+import userService from "@/services/user";
 
 export default {
   components: {
@@ -53,6 +54,11 @@ export default {
       },
     ],
   }),
+  mounted() {
+    userService
+      .getAll()
+      .then(({ data: { data: users } }) => (this.users = users));
+  },
 };
 </script>
 

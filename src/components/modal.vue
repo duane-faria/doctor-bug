@@ -1,10 +1,11 @@
 <template>
   <div
-    class="min-w-screen h-screen animated fadeIn faster  fixed  left-0 top-0 flex justify-center items-center inset-0 z-50 outline-none focus:outline-none bg-no-repeat bg-center bg-cover"
+    class="modal min-w-screen h-screen animated fadeIn faster  fixed  left-0 top-0 flex justify-center items-center inset-0 z-0 outline-none focus:outline-none bg-no-repeat bg-center bg-cover"
     v-if="open"
   >
     <div
       class="absolute bg-black opacity-80 inset-0 z-0"
+      v-if="!isLoading"
       @click="open = false"
     ></div>
     <div
@@ -32,6 +33,8 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   props: {
     modelValue: { type: Boolean, default: false },
@@ -39,6 +42,7 @@ export default {
     text: { type: String },
   },
   computed: {
+    ...mapGetters(["isLoading"]),
     open: {
       get() {
         return this.modelValue;

@@ -1,7 +1,11 @@
 <template>
   <button
-    :class="background"
-    class="mb-2 md:mb-0 px-5 py-2 text-sm shadow-sm font-medium tracking-wider border rounded-full hover:shadow-lg hover:bg-opacity-80"
+    :class="[
+      `${background}`,
+      { 'hover:shadow-lg hover:bg-opacity-80': !disabled },
+    ]"
+    class="mb-2 md:mb-0 px-5 py-2 text-sm shadow-sm font-medium tracking-wider border rounded-full"
+    :disabled="disabled"
   >
     <slot></slot>
   </button>
@@ -10,7 +14,10 @@
 <script>
 export default {
   props: {
-    type: String,
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     background() {
