@@ -18,7 +18,7 @@ export default {
   computed: {
     ...mapGetters(["isLoading"]),
     dontShowSideBar() {
-      const rules = ["Login"];
+      const rules = ["Login", "Register"];
       return rules.indexOf(this.$route.name) !== -1;
     },
   },
