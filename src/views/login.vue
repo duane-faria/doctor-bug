@@ -77,9 +77,8 @@
               >
               <input
                 class=" w-full text-base px-4 py-2 border-b border-gray-300 focus:outline-none rounded-2xl focus:border-indigo-500"
-                type=""
-                placeholder="mail@gmail.com"
-                value="mail@gmail.com"
+                type="email"
+                v-model="user.email"
               />
             </div>
             <div class="mt-8 content-center">
@@ -88,9 +87,8 @@
               </label>
               <input
                 class="w-full content-center text-base px-4 py-2 border-b rounded-2xl border-gray-300 focus:outline-none focus:border-indigo-500"
-                type=""
-                placeholder="Enter your password"
-                value="*****|"
+                type="password"
+                v-model="user.password"
               />
             </div>
             <div class="flex items-center justify-between">
@@ -126,10 +124,28 @@
 </template>
 
 <script>
+import get from "lodash.get";
+
+import sessionService from "@/services/session";
+
 export default {
+  data: () => ({
+    user: {
+      email: "",
+      password: "",
+    },
+  }),
   methods: {
-    login() {
-      this.$router.push({ name: "BugList" });
+    async login() {
+      if (get(this.user, "email.length") && get(this.user, "password.length")) {
+        const {
+          data: { data: loginData },
+        } = await sessionService.create(this.user);
+        console.log(loginData);
+        if (loginData) {
+          this.$router.push({ name: "BugList" });
+        }
+      }
     },
   },
 };
