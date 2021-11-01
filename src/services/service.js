@@ -3,6 +3,7 @@ import axios from "./axios";
 class Service {
   constructor(endpoint) {
     this.url = endpoint;
+    this.axios = axios;
   }
 
   create(object) {
