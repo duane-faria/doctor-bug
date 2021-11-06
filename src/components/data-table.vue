@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-5 w-full shadow-sm">
+  <div class="mt-5 w-full shadow-sm overflow-x-scroll sm:overflow-x-hidden">
     <!-- <section>title</section> -->
     <table class="my-3 w-full">
       <thead class="my-3 pb-1 bg-white" style="height:40px;">
@@ -10,6 +10,9 @@
             class="text-left text-gray-600 font-medium text-sm px-2"
           >
             {{ header.text }}
+          </th>
+          <th class="text-left text-gray-600 font-medium text-sm px-2">
+            ações
           </th>
         </tr>
       </thead>
@@ -31,6 +34,10 @@
           >
             {{ col[key] }}
           </td>
+          <td v-if="config">
+            <button @click="$emit('edit', col.id)">editar</button>
+            <button @click="$emit('delete', col.id)">deletar</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -38,14 +45,23 @@
 </template>
 
 <script>
+// import Test from "@/components/test";
+
 export default {
   props: {
     headers: Array,
     data: Array,
+    config: Object
   },
+  // components: {
+  //   Test
+  // },
   mounted() {
     this.componentRules();
   },
+  data: () => ({
+    d: "Test"
+  }),
   methods: {
     componentRules() {
       // if (this.headers.length !== this.data.length) {
@@ -54,8 +70,8 @@ export default {
     },
     console(_info) {
       console.log(_info);
-    },
-  },
+    }
+  }
 };
 </script>
 

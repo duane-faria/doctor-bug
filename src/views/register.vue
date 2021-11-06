@@ -15,7 +15,7 @@
           />
           <div class="mb-4">
             <input
-              type="text"
+              type="email"
               class="block border border-grey-light w-full p-3 rounded"
               name="email"
               placeholder="Email"
@@ -35,30 +35,60 @@
             placeholder="Senha"
             required
           />
+          <div class="mb-4" v-if="user.hasTeam == 0">
+            <input
+              class="block border border-grey-light w-full p-3 rounded"
+              name="confirm_password"
+              placeholder="Código do time"
+              v-model="user.team_code"
+              maxlength="4"
+              required
+              @blur="validateTeamCode"
+            />
+            <small class="ml-1 text-red-600" v-if="validation.user.team_code">{{
+              validation.user.team_code
+            }}</small>
+          </div>
+
           <input
             class="block border border-grey-light w-full p-3 rounded mb-4"
             name="confirm_password"
-            placeholder="Código do time"
-            v-model="user.team_id"
-            maxlength="4"
+            placeholder="Nome do time"
+            v-model="user.team_name"
             required
+            v-if="user.hasTeam == 1"
           />
-          <radio label="Possuo time" v-model="user.hasTeam" />
-          <radio label="Criar time" v-model="user.createTeam" />
+
+          <radio
+            :option="'0'"
+            name="time"
+            label="Possuo time"
+            v-model="user.hasTeam"
+          />
+
+          <radio
+            name="time"
+            label="Criar time"
+            :option="'1'"
+            v-model="user.hasTeam"
+          />
 
           <button
             type="submit"
             :disabled="!formValid"
-            class="w-full text-center py-3 rounded bg-green-500 text-white hover:bg-green-300 focus:outline-none my-1"
+            class="w-full text-center py-3 rounded bg-green-500 text-white hover:bg-green-300 focus:outline-none my-3"
           >
             Criar conta
           </button>
         </form>
       </div>
 
-      <div class="text-grey-dark mt-6">
+      <div class="text-grey-dark mt-6 flex flex-col items-center">
         Já tem uma conta?
-        <a class="no-underline border-b border-blue text-blue" href="../login/">
+        <a
+          class="no-underline border-b border-blue text-blue mt-2"
+          href="../login/"
+        >
           Entrar </a
         >.
       </div>
@@ -68,19 +98,22 @@
 
 <script>
 import get from 'lodash.get';
+import pick from 'lodash.pick';
+import { mapActions } from 'vuex';
 
 import radio from '@/components/radio';
 import userService from '../services/user';
 import teamService from '../services/team';
+import sessionService from '../services/session';
 
 const userData = () => ({
   name: '',
   email: '',
   password: '',
-  team_id: '',
-  hasTeam: null,
-  createTeam: null,
+  team_code: '',
+  hasTeam: '0',
   team_name: '',
+  team_id: '',
 });
 
 export default {
@@ -94,12 +127,18 @@ export default {
     },
     loading: false,
   }),
+  watch: {
+    'user.hasTeam'() {
+      this.validation.user.team_code = '';
+      this.user.team_code = '';
+    },
+  },
   methods: {
+    ...mapActions(['setUser']),
     async register() {
-      console.log('cadastrar');
       let team_id = this.user.team_id;
 
-      if (!this.user.team_id) {
+      if (!this.user.team_code) {
         const {
           data: { data: team },
         } = await teamService.create({ name: this.user.team_name });
@@ -110,6 +149,22 @@ export default {
         ...pick(this.user, ['name', 'email', 'password']),
         team_id,
       });
+
+      await this.login(pick(this.user, ['email', 'password']));
+    },
+    async login(user) {
+      try {
+        const {
+          data: { data: userData },
+        } = await sessionService.create(user);
+        console.log(userData);
+        if (userData) {
+          this.setUser(userData);
+          this.$router.push({ name: 'BugList' });
+        }
+      } catch (e) {
+        console.log(e);
+      }
     },
     async validateEmail() {
       console.log('validar email');
@@ -123,6 +178,23 @@ export default {
             : emailValidationMessage;
         } catch (e) {
           this.validation.user.email = e;
+        }
+      }
+    },
+    async validateTeamCode() {
+      console.log('validar codigo do time');
+      if (get(this.user, 'team_code.length')) {
+        const emailValidationMessage = 'Código do time inválido';
+        try {
+          const {
+            data: { data: teamValidation },
+          } = await teamService.validateTeamCode(this.user.team_code);
+          this.validation.user.team_code = teamValidation.isCodeValid
+            ? ''
+            : emailValidationMessage;
+          this.user.team_id = teamValidation.teamId;
+        } catch (e) {
+          this.validation.user.team_code = e;
         }
       }
     },

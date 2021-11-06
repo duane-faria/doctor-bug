@@ -7,13 +7,20 @@
         >
           <div class="flex flex-auto flex-wrap"></div>
           <input
-            class="p-1 px-2 appearance-none outline-none w-full text-gray-800  svelte-1l8159u"
-            v-model="select"
+            class="p-1 px-2 appearance-none outline-none w-full text-gray-800  svelte-1l8159u "
+            v-model="search"
+            @focus="showList = true"
           />
+            <!-- @blur="showList = false" -->
           <div>
             <button
               class="cursor-pointer w-6 h-full flex items-center text-gray-400 outline-none focus:outline-none"
-              @click="select = ''"
+              @click="
+                () => {
+                  select = '';
+                  search = '';
+                }
+              "
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -75,7 +82,7 @@
             >
               <div class="w-full items-center flex">
                 <div class="mx-2 leading-6">
-                  {{ item }}
+                  {{ item.name || item.text }}
                 </div>
               </div>
             </div>
@@ -87,27 +94,40 @@
 </template>
 
 <script>
+import get from 'lodash.get';
+
 export default {
   props: {
     modelValue: { type: Object },
+    items: { Type: Array, required: true },
   },
   data: () => ({
-    items: ["Python", "Javascript", "Ruby"],
-    showList: true,
+    // items: ['Python', 'Javascript', 'Ruby'],
+    showList: false,
+    search: '',
   }),
   methods: {
     setItem(item) {
       this.showList = false;
       this.select = item;
+      this.search = item.text || item.name;
     },
+  },
+  mounted() {
+    console.log(this.$parent);
+    // this.$parent.$el.addEventListener('click', (e) => {
+    //   console.log(e)
+    //   // if()
+    //   this.showList = false;
+    // });
   },
   computed: {
     select: {
       get() {
-        return this.modelValue;
+        return get(this, 'modelValue.text') || get(this, 'modelValue.name');
       },
       set(value) {
-        this.$emit("update:modelValue", value);
+        this.$emit('update:modelValue', value);
       },
     },
   },

@@ -1,5 +1,6 @@
 <template>
-  <div class="relative min-h-screen md:flex">
+  <div class="relative lg:min-h-screen md:flex">
+    <!-- :class="{ 'min-h-screen absolute': openMobileMenu }" -->
     <!-- mobile menu bar -->
     <div class="custom-bg text-gray-100 flex justify-between md:hidden">
       <!-- logo -->
@@ -30,7 +31,7 @@
     <!-- sidebar -->
     <div
       :class="{ '-translate-x-full': !openMobileMenu }"
-      class="sidebar custom-bg text-blue-100 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform md:relative md:translate-x-0 transition duration-200 ease-in-out"
+      class="sidebar min-h-screen custom-bg text-blue-100 w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform md:relative md:translate-x-0 transition duration-200 ease-in-out"
     >
       <!-- logo -->
       <a href="#" class="text-white flex items-center space-x-2 px-4">
@@ -70,33 +71,69 @@
         >
           {{ link.name }}
         </a>
+        <a
+          @click="logout"
+          class="cursor-pointer block py-2.5 px-4 rounded transition duration-200 hover:bg-red-500 hover:text-white"
+        >
+          Sair
+        </a>
       </nav>
+      <div class="flex flex-col pl-3 leading-7	">
+        <h4 class="font-bold">Time</h4>
+        <span> nome: {{ team.name }} </span>
+        <span> código: {{ team.code }} </span>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+
+import teamService from "../services/team";
+
 export default {
   data: () => ({
+    team: {
+      name: "",
+      code: ""
+    },
     openMobileMenu: false,
     projectTitle: "bug doctor",
     activeMenu: 1,
     links: [
       {
         name: "Usuários",
-        route: "Users",
+        route: "Users"
       },
       {
         name: "Problemas",
-        route: "BugList",
-      },
-    ],
+        route: "BugList"
+      }
+    ]
   }),
+  computed: {
+    ...mapGetters(["getUser"])
+  },
   methods: {
+    ...mapActions(["setUser"]),
     navigate(routeName) {
       this.$router.push({ name: routeName });
+      if (this.openMobileMenu) {
+        this.openMobileMenu = false;
+      }
     },
+    logout() {
+      this.setUser(null);
+      this.$router.push({ name: "Login" });
+    }
   },
+  created() {
+    teamService.get(this.getUser.team_id).then(({ data: { data: team } }) => {
+      this.team.name = team.name;
+      this.team.code = team.code;
+    });
+  }
 };
 </script>
 

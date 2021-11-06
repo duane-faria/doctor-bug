@@ -7,7 +7,16 @@
           Novo
         </Button>
       </header>
-      <data-table :headers="headers" :data="bugs" />
+      <data-table
+        :config="{
+          edit: true,
+          delete: true
+        }"
+        :headers="headers"
+        :data="bugs"
+        @edit="editBug"
+        @delete="deleteBug"
+      />
     </div>
     <BugRegistration @newBug="addBug" v-model:open="openInsertBug" />
     <!--  -->
@@ -15,49 +24,23 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
+// import get from "lodash.get";
+
 import DataTable from "@/components/data-table";
 import BugRegistration from "@/components/bug-registration";
 import Button from "@/components/button";
 import bugService from "@/services/bug";
 
-// const bugFactory = ({
-//   reporter,
-//   responsible,
-//   description,
-//   enviroment,
-//   priority,
-//   status,
-// }) => ({
-//   reporter,
-//   responsible,
-//   description,
-//   enviroment,
-//   priority,
-//   status,
-// });
+import priorities from "@/constants/priority";
+import statuses from "@/constants/status";
+import enviroments from "@/constants/enviroment";
 
-// const bug = bugFactory({
-//   description:
-//     "Brazil, officially the Federative Republic of Brazil, is the largest country in both South America and Latin America. At 8.5 million square kilometers and with over 211 million people, Brazil is the world's fifth-largest country by area and the sixth most populous.",
-//   reporter: "Fernanda",
-//   responsible: "Duane",
-//   enviroment: "dev",
-//   priority: "baixa",
-//   status: "baixa",
-// });
-// const bug2 = bugFactory({
-//   reporter: "Fernanda",
-//   description: "dwadwadwadwadwa",
-//   responsible: "Duane",
-//   enviroment: "dev",
-//   priority: "baixa",
-//   status: "baixa",
-// });
 export default {
   components: {
     DataTable,
     BugRegistration,
-    Button,
+    Button
   },
   data: () => ({
     headers: [
@@ -66,21 +49,50 @@ export default {
       { text: "ambiente", key: "enviroment" },
       { text: "responsável", key: "responsible" },
       { text: "prioridade", key: "priority" },
-      { text: "status", key: "status" },
+      { text: "status", key: "status" }
     ],
     bugs: [],
     bug: {},
-    // bugs: [bug, bug, bug, bug2, bug],
-    openInsertBug: false,
+    openInsertBug: false
   }),
   methods: {
+    ...mapActions(["setLoading"]),
     addBug(bug) {
       this.bugs.push(bug);
+      this.mapBugs();
     },
+    editBug() {
+      this.openInsertBug = true;
+    },
+    async deleteBug(id) {
+      await bugService.delete(id);
+      this.getBugs();
+    },
+    mapBugs() {
+      this.bugs.forEach(b => {
+        b.enviroment = enviroments.find(e => e.key === b.enviroment).text;
+        b.priority = priorities.find(e => e.key === b.priority).text;
+        b.status = statuses.find(e => e.key === b.status).text;
+        b.responsible = b.responsible.name;
+        b.reporter = b.reporter.name;
+      });
+    },
+    async getBugs() {
+      this.setLoading(true);
+      const {
+        data: { data }
+      } = await bugService.getAll(`/${this.getUser.team_id}`);
+      this.bugs = data;
+      this.mapBugs();
+      this.setLoading(false);
+    }
+  },
+  computed: {
+    ...mapGetters(["getUser"])
   },
   mounted() {
-    bugService.getAll().then(({ data: { data } }) => (this.bugs = data));
-  },
+    this.getBugs();
+  }
 };
 </script>
 

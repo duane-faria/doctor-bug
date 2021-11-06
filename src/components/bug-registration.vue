@@ -7,7 +7,7 @@
         </h2>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Relator</label>
-          <Select v-model="bug.reporter" />
+          <Select v-model="bug.reporter" :items="users" />
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Description</label>
@@ -20,24 +20,24 @@
             spellcheck="false"
           ></textarea>
           <p class="text-xs text-gray-400 text-left my-3">
-            Você inseriu {{ get(bug, "description.length", 0) }} caracteres
+            Você inseriu {{ get(bug, 'description.length', 0) }} caracteres
           </p>
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Ambiente</label>
-          <Select v-model="bug.enviroment" />
+          <Select v-model="bug.enviroment" :items="enviroments" />
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Responsável</label>
-          <Select v-model="bug.responsible" />
+          <Select v-model="bug.responsible" :items="users" />
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Prioridade</label>
-          <Select v-model="bug.priority" />
+          <Select v-model="bug.priority" :items="priorities" />
         </div>
         <div class="w-full">
           <label class="font-semibold text-gray-600 py-2">Status</label>
-          <Select v-model="bug.status" />
+          <Select v-model="bug.status" :items="status" />
         </div>
       </section>
     </template>
@@ -51,13 +51,18 @@
 </template>
 
 <script>
-import get from "lodash.get";
+import get from 'lodash.get';
+import { mapGetters, mapActions } from 'vuex';
 
-import Modal from "@/components/modal";
-import Button from "@/components/button";
-import Select from "@/components/select";
-import bugService from "@/services/bug";
-import { mapGetters, mapActions } from "vuex";
+import Modal from '@/components/modal';
+import Button from '@/components/button';
+import Select from '@/components/select';
+import bugService from '@/services/bug';
+import userService from '@/services/user';
+
+import priorities from '@/constants/priority';
+import status from '@/constants/status';
+import enviroment from '@/constants/enviroment';
 
 export default {
   components: {
@@ -70,40 +75,60 @@ export default {
   },
   data: () => ({
     bug: {
-      reporter: "",
-      responsible: "",
-      enviroment: "",
-      description: "",
-      priority: "",
-      status: "",
+      reporter: '',
+      responsible: '',
+      enviroment: '',
+      description: '',
+      priority: '',
+      status: '',
     },
+    users: [],
+    enviroments: [...enviroment],
+    priorities: [...priorities],
+    status,
     loading: false,
   }),
   computed: {
-    ...mapGetters(["isLoading"]),
+    ...mapGetters(['isLoading', 'getUser']),
     isOpen: {
       get() {
         return this.open;
       },
       set(value) {
         this.clear();
-        this.$emit("update:open", value);
+        this.$emit('update:open', value);
       },
     },
     get() {
       return get;
     },
   },
+  created() {
+    userService
+      .getAll(`/${this.getUser.team_id}`)
+      .then(({ data: { data: users } }) => {
+        this.users = users;
+      });
+  },
   methods: {
-    ...mapActions(["setLoading"]),
+    ...mapActions(['setLoading']),
     clear() {
       this.bug = {};
     },
     async saveBug() {
       this.setLoading(true);
       try {
-        await bugService.create(this.bug);
-        this.$emit("newBug", this.bug);
+        const bug = {
+          description: this.bug.description,
+          enviroment: this.bug.enviroment.key,
+          priority: this.bug.priority.key,
+          reporter_id: this.bug.reporter.id,
+          responsible_id: this.bug.responsible.id,
+          status: this.bug.status.key,
+        };
+
+        await bugService.create(bug);
+        this.$emit('newBug', bug);
       } catch (e) {
         console.error(e);
       } finally {
@@ -117,7 +142,7 @@ export default {
 
 <style scoped>
 h2 {
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 28px;
   font-weight: 500;
 }

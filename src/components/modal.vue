@@ -1,6 +1,6 @@
 <template>
   <div
-    class="modal min-w-screen h-screen animated fadeIn faster  fixed  left-0 top-0 flex justify-center items-center inset-0 z-0 outline-none focus:outline-none bg-no-repeat bg-center bg-cover"
+    class="modal min-w-screen overflow-y-auto h-screen animated fadeIn faster  fixed  left-0 top-0 flex justify-center items-center inset-0 z-0 outline-none focus:outline-none bg-no-repeat bg-center bg-cover"
     v-if="open"
   >
     <div
@@ -9,7 +9,7 @@
       @click="open = false"
     ></div>
     <div
-      class="w-full  max-w-lg p-5 relative mx-auto my-auto rounded-xl shadow-lg  bg-white "
+      class="w-full max-w-lg p-5 relative mx-auto my-auto sm:rounded-xl shadow-lg  bg-white "
     >
       <slot name="content"></slot>
 
@@ -39,7 +39,16 @@ export default {
   props: {
     modelValue: { type: Boolean, default: false },
     title: { type: String },
-    text: { type: String },
+    text: { type: String }
+  },
+  watch: {
+    open(isOpen) {
+      if (isOpen) {
+        document.querySelector("body").classList.add("overflow-y-hidden");
+      } else {
+        document.querySelector("body").classList.remove("overflow-y-hidden");
+      }
+    }
   },
   computed: {
     ...mapGetters(["isLoading"]),
@@ -49,9 +58,9 @@ export default {
       },
       set(value) {
         this.$emit("update:modelValue", value);
-      },
-    },
-  },
+      }
+    }
+  }
 };
 </script>
 

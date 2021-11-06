@@ -111,7 +111,7 @@
             >
               <span>Não tem uma conta?</span>
               <a
-                href="#"
+                @click.prevent="$router.push({ name: 'Register' })"
                 class="text-indigo-400 hover:text-blue-500 no-underline hover:underline cursor-pointer transition ease-in duration-300"
                 >Cadastre-se</a
               >
@@ -124,26 +124,38 @@
 </template>
 
 <script>
-import get from "lodash.get";
+import get from 'lodash.get';
+import { mapActions } from 'vuex';
 
-import sessionService from "@/services/session";
+import sessionService from '@/services/session';
 
 export default {
   data: () => ({
     user: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   }),
   methods: {
+    ...mapActions(['setUser', 'setLoading']),
     async login() {
-      if (get(this.user, "email.length") && get(this.user, "password.length")) {
-        const {
-          data: { data: loginData },
-        } = await sessionService.create(this.user);
-        console.log(loginData);
-        if (loginData) {
-          this.$router.push({ name: "BugList" });
+      if (get(this.user, 'email.length') && get(this.user, 'password.length')) {
+        try {
+          this.setLoading(true);
+          const {
+            data: { data: loginData },
+          } = await sessionService.create(this.user);
+          console.log(loginData);
+          if (loginData) {
+            this.setUser(loginData);
+            this.$notify('Login realizado!');
+            this.$router.push({ name: 'BugList' });
+            this.setLoading(false);
+          }
+        } catch (e) {
+          console.log(e);
+          this.setLoading(false);
+          this.$notify({ type: 'error', text: 'E-mail ou senha incorretos!' });
         }
       }
     },

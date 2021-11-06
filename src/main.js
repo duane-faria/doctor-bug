@@ -1,4 +1,6 @@
 import { createApp } from "vue";
+import Notifications from '@kyvg/vue3-notification'
+
 import App from "./App.vue";
 import routes from "./routes";
 import store from "./store";
@@ -20,6 +22,8 @@ const app = createApp(App, {
 app.use(routes);
 
 app.use(store);
+
+app.use(Notifications);
 
 app.mount("#app");
 

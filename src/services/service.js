@@ -10,8 +10,16 @@ class Service {
     return axios.post(this.url, object);
   }
 
-  getAll() {
-    return axios.get(this.url + "s");
+  get(params) {
+    return axios.get(`${this.url}/${params}`);
+  }
+
+  getAll(params = "") {
+    return axios.get(this.url + "s" + params);
+  }
+
+  delete(params) {
+    return axios.delete(`${this.url}/${params}`);
   }
 }
 

@@ -1,8 +1,9 @@
 <template>
-  <div class="flex">
+  <div class="md:flex">
     <side-bar v-if="!dontShowSideBar" />
     <router-view></router-view>
     <Spinner v-if="isLoading" />
+    <notifications position="top left" class="mt-5"/>
   </div>
 </template>
 
@@ -18,7 +19,7 @@ export default {
   computed: {
     ...mapGetters(["isLoading"]),
     dontShowSideBar() {
-      const rules = ["Login", "Register"];
+      const rules = ["Login", "Register", "NotFound"];
       return rules.indexOf(this.$route.name) !== -1;
     },
   },
