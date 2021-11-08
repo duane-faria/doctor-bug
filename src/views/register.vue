@@ -97,84 +97,84 @@
 </template>
 
 <script>
-import get from 'lodash.get';
-import pick from 'lodash.pick';
-import { mapActions } from 'vuex';
+import get from "lodash.get";
+import pick from "lodash.pick";
+import { mapActions } from "vuex";
 
-import radio from '@/components/radio';
-import userService from '../services/user';
-import teamService from '../services/team';
-import sessionService from '../services/session';
+import radio from "@/components/radio";
+import userService from "../services/user";
+import teamService from "../services/team";
+import sessionService from "../services/session";
 
 const userData = () => ({
-  name: '',
-  email: '',
-  password: '',
-  team_code: '',
-  hasTeam: '0',
-  team_name: '',
-  team_id: '',
+  name: "",
+  email: "",
+  password: "",
+  team_code: "",
+  hasTeam: "0",
+  team_name: "",
+  team_id: ""
 });
 
 export default {
   components: {
-    radio,
+    radio
   },
   data: () => ({
     user: userData(),
     validation: {
-      user: userData(),
+      user: userData()
     },
-    loading: false,
+    loading: false
   }),
   watch: {
-    'user.hasTeam'() {
-      this.validation.user.team_code = '';
-      this.user.team_code = '';
-    },
+    "user.hasTeam"() {
+      this.validation.user.team_code = "";
+      this.user.team_code = "";
+    }
   },
   methods: {
-    ...mapActions(['setUser']),
+    ...mapActions(["setUser"]),
     async register() {
       let team_id = this.user.team_id;
 
       if (!this.user.team_code) {
         const {
-          data: { data: team },
+          data: { data: team }
         } = await teamService.create({ name: this.user.team_name });
         team_id = team.id;
       }
 
       await userService.create({
-        ...pick(this.user, ['name', 'email', 'password']),
-        team_id,
+        ...pick(this.user, ["name", "email", "password"]),
+        team_id
       });
 
-      await this.login(pick(this.user, ['email', 'password']));
+      await this.login(pick(this.user, ["email", "password"]));
     },
     async login(user) {
       try {
         const {
-          data: { data: userData },
+          data: { data: userData }
         } = await sessionService.create(user);
         console.log(userData);
         if (userData) {
           this.setUser(userData);
-          this.$router.push({ name: 'BugList' });
+          this.$router.push({ name: "BugList" });
         }
       } catch (e) {
         console.log(e);
       }
     },
     async validateEmail() {
-      console.log('validar email');
-      if (get(this.user, 'email.length')) {
-        const emailValidationMessage = 'E-mail já cadastrado';
+      console.log("validar email");
+      if (get(this.user, "email.length")) {
+        const emailValidationMessage = "E-mail já cadastrado";
         try {
           this.validation.user.email = (
             await userService.validateEmail(this.user.email)
           ).data.data.valid
-            ? ''
+            ? ""
             : emailValidationMessage;
         } catch (e) {
           this.validation.user.email = e;
@@ -182,31 +182,38 @@ export default {
       }
     },
     async validateTeamCode() {
-      console.log('validar codigo do time');
-      if (get(this.user, 'team_code.length')) {
-        const emailValidationMessage = 'Código do time inválido';
+      console.log("validar codigo do time");
+      if (get(this.user, "team_code.length")) {
+        const emailValidationMessage = "Código do time inválido";
         try {
           const {
-            data: { data: teamValidation },
+            data: { data: teamValidation }
           } = await teamService.validateTeamCode(this.user.team_code);
           this.validation.user.team_code = teamValidation.isCodeValid
-            ? ''
+            ? ""
             : emailValidationMessage;
           this.user.team_id = teamValidation.teamId;
         } catch (e) {
           this.validation.user.team_code = e;
         }
       }
-    },
+    }
   },
   computed: {
     formValid() {
       const rules = [!this.validation.user.email, !this.loading];
       console.log(rules);
       return !rules.includes(false);
-    },
-  },
+    }
+  }
 };
 </script>
 
-<style></style>
+<style>
+button:disabled,
+button[disabled] {
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
+}
+</style>

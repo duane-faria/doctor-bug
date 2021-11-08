@@ -6,6 +6,7 @@ import BugList from "./views/bug-list";
 import Login from "./views/login";
 import Register from "./views/register";
 import NotFound from "./views/not-found";
+import Project from "./views/project";
 
 const routes = [
   { path: "/", component: Login, name: "Login" },
@@ -20,6 +21,7 @@ const routes = [
     }
   },
   { path: "/register", component: Register, name: "Register" },
+  { path: "/projects", component: Project, name: "ProjectList" },
   { path: "/:pathMatch(.*)", component: NotFound, name: 'NotFound' },
 ];
 

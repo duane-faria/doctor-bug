@@ -11,7 +11,10 @@
           >
             {{ header.text }}
           </th>
-          <th class="text-left text-gray-600 font-medium text-sm px-2">
+          <th
+            v-if="config"
+            class="text-left text-gray-600 font-medium text-sm px-2"
+          >
             ações
           </th>
         </tr>
@@ -24,8 +27,9 @@
       >
         <tr class="bg-gray-50" style="height:1.5px"></tr>
         <tr
-          class="font-light text-sm w-full bg-white px-3"
+          class="font-light text-sm w-full bg-white px-3 cursor-pointer"
           style="height:40px;"
+          @click="$emit('rowClick', col)"
         >
           <td
             v-for="{ key } of Object.values(headers)"
@@ -45,23 +49,15 @@
 </template>
 
 <script>
-// import Test from "@/components/test";
-
 export default {
   props: {
     headers: Array,
     data: Array,
     config: Object
   },
-  // components: {
-  //   Test
-  // },
   mounted() {
     this.componentRules();
   },
-  data: () => ({
-    d: "Test"
-  }),
   methods: {
     componentRules() {
       // if (this.headers.length !== this.data.length) {
@@ -75,7 +71,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 td:first-child,
 th:first-child {
   border-top-left-radius: 5px;

@@ -78,13 +78,18 @@ export default {
       });
     },
     async getBugs() {
-      this.setLoading(true);
-      const {
-        data: { data }
-      } = await bugService.getAll(`/${this.getUser.team_id}`);
-      this.bugs = data;
-      this.mapBugs();
-      this.setLoading(false);
+      try {
+        this.setLoading(true);
+        const {
+          data: { data }
+        } = await bugService.getAll(`/${this.$route.query.project_id}`);
+        this.bugs = data;
+        this.mapBugs();
+      } catch (e) {
+        console.error(e);
+      } finally {
+        this.setLoading(false);
+      }
     }
   },
   computed: {
