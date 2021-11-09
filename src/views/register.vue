@@ -157,7 +157,6 @@ export default {
         const {
           data: { data: userData }
         } = await sessionService.create(user);
-        console.log(userData);
         if (userData) {
           this.setUser(userData);
           this.$router.push({ name: "BugList" });
@@ -202,7 +201,6 @@ export default {
   computed: {
     formValid() {
       const rules = [!this.validation.user.email, !this.loading];
-      console.log(rules);
       return !rules.includes(false);
     }
   }

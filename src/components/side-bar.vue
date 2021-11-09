@@ -64,7 +64,7 @@
       <nav>
         <a
           @click="navigate(link.route)"
-          :class="{ 'bg-red-500': $route.name === link.route }"
+          :class="{ 'bg-red-500': isActive(link) }"
           class="cursor-pointer block py-2.5 px-4 rounded transition duration-200 hover:bg-red-500 hover:text-white"
           v-for="(link, index) in links"
           :key="link + index"
@@ -107,8 +107,8 @@ export default {
         route: "Users"
       },
       {
-        name: "Problemas",
-        route: "BugList"
+        name: "Projetos",
+        route: ["ProjectList", "BugList"]
       }
     ]
   }),
@@ -118,10 +118,23 @@ export default {
   methods: {
     ...mapActions(["setUser"]),
     navigate(routeName) {
-      this.$router.push({ name: routeName });
+      let route = routeName;
+      if (routeName instanceof Array) {
+        route = route[0];
+      }
+      this.$router.push({ name: route });
       if (this.openMobileMenu) {
         this.openMobileMenu = false;
       }
+    },
+    isActive(link) {
+      const routeName = this.$route.name;
+
+      if (link.route instanceof Array) {
+        return link.route.includes(routeName);
+      }
+
+      return link.route === routeName;
     },
     logout() {
       this.setUser(null);

@@ -15,12 +15,12 @@
             required=""
             name="message"
             v-model="bug.description"
-            class="w-full min-h-[100px] max-h-[300px] h-28 resize-none	
+            class="w-full min-h-[100px] max-h-[300px] h-28 resize-none
             appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg  py-4 px-4 outline-none focus:boder-grey-500"
             spellcheck="false"
           ></textarea>
           <p class="text-xs text-gray-400 text-left my-3">
-            Você inseriu {{ get(bug, 'description.length', 0) }} caracteres
+            Você inseriu {{ get(bug, "description.length", 0) }} caracteres
           </p>
         </div>
         <div class="w-full">
@@ -51,57 +51,101 @@
 </template>
 
 <script>
-import get from 'lodash.get';
-import { mapGetters, mapActions } from 'vuex';
+import get from "lodash.get";
+import { mapGetters, mapActions } from "vuex";
 
-import Modal from '@/components/modal';
-import Button from '@/components/button';
-import Select from '@/components/select';
-import bugService from '@/services/bug';
-import userService from '@/services/user';
+import Modal from "@/components/modal";
+import Button from "@/components/button";
+import Select from "@/components/select";
+import bugService from "@/services/bug";
+import userService from "@/services/user";
 
-import priorities from '@/constants/priority';
-import status from '@/constants/status';
-import enviroment from '@/constants/enviroment';
+import priorities from "@/constants/priority";
+import status from "@/constants/status";
+import enviroment from "@/constants/enviroment";
 
 export default {
   components: {
     Modal,
     Button,
-    Select,
+    Select
   },
   props: {
     open: { type: Boolean, default: false },
+    bugParam: { type: Boolean }
   },
   data: () => ({
     bug: {
-      reporter: '',
-      responsible: '',
-      enviroment: '',
-      description: '',
-      priority: '',
-      status: '',
+      reporter: "",
+      responsible: "",
+      enviroment: "",
+      description: "",
+      priority: "",
+      status: ""
     },
     users: [],
     enviroments: [...enviroment],
     priorities: [...priorities],
     status,
-    loading: false,
+    loading: false
   }),
   computed: {
-    ...mapGetters(['isLoading', 'getUser']),
+    ...mapGetters(["isLoading", "getUser"]),
     isOpen: {
       get() {
         return this.open;
       },
       set(value) {
         this.clear();
-        this.$emit('update:open', value);
-      },
+        this.$emit("update:open", value);
+      }
     },
     get() {
       return get;
-    },
+    }
+  },
+  watch: {
+    isOpen: {
+      immediate: true,
+      async handler(is_open) {
+        if (is_open && this.bugParam.id) {
+          this.setLoading(true);
+          try {
+            const {
+              data: { data: bugToBeEdited }
+            } = await bugService.get(this.bugParam.id);
+            this.bug = {
+              id: bugToBeEdited.id,
+              reporter: bugToBeEdited.reporter,
+              responsible: bugToBeEdited.responsible,
+              enviroment: {
+                key: bugToBeEdited.enviroment,
+                text: enviroment.find(e => e.key === bugToBeEdited.enviroment)
+                  .text
+              },
+              description: bugToBeEdited.description,
+              priority: {
+                key: bugToBeEdited.priority,
+                text: priorities.find(e => e.key === bugToBeEdited.priority)
+                  .text
+              },
+              status: {
+                key: bugToBeEdited.status,
+                text: status.find(e => e.key === bugToBeEdited.status).text
+              }
+            };
+          } catch (error) {
+            console.error(error);
+          } finally {
+            this.setLoading(false);
+          }
+        }
+      }
+    }
+  },
+  mounted() {
+    // if (this.bugParam) {
+    // }
   },
   created() {
     userService
@@ -111,7 +155,7 @@ export default {
       });
   },
   methods: {
-    ...mapActions(['setLoading']),
+    ...mapActions(["setLoading"]),
     clear() {
       this.bug = {};
     },
@@ -125,24 +169,28 @@ export default {
           reporter_id: this.bug.reporter.id,
           responsible_id: this.bug.responsible.id,
           status: this.bug.status.key,
+          project_id: Number(this.$route.query.project_id)
         };
-
-        await bugService.create(bug);
-        this.$emit('newBug', bug);
+        if (get(this.bugParam, "id")) {
+          await bugService.update({ ...bug, id: this.bug.id });
+        } else {
+          await bugService.create(bug);
+        }
+        this.$emit("newBug", bug);
       } catch (e) {
         console.error(e);
       } finally {
         this.setLoading(false);
         this.isOpen = false;
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style scoped>
 h2 {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 28px;
   font-weight: 500;
 }

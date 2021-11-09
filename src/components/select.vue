@@ -11,7 +11,7 @@
             v-model="search"
             @focus="showList = true"
           />
-            <!-- @blur="showList = false" -->
+          <!-- @blur="showList = false" -->
           <div>
             <button
               class="cursor-pointer w-6 h-full flex items-center text-gray-400 outline-none focus:outline-none"
@@ -71,7 +71,7 @@
       >
         <div class="flex flex-col w-full">
           <div
-            class="cursor-pointer w-full border-gray-100 rounded-t border-b 
+            class="cursor-pointer w-full border-gray-100 rounded-t border-b
             hover:bg-teal-100"
             v-for="item of items"
             :key="item"
@@ -94,43 +94,41 @@
 </template>
 
 <script>
-import get from 'lodash.get';
+import get from "lodash.get";
 
 export default {
   props: {
     modelValue: { type: Object },
-    items: { Type: Array, required: true },
+    items: { Type: Array, required: true }
   },
   data: () => ({
-    // items: ['Python', 'Javascript', 'Ruby'],
     showList: false,
-    search: '',
+    search: ""
   }),
   methods: {
     setItem(item) {
       this.showList = false;
       this.select = item;
       this.search = item.text || item.name;
-    },
+    }
   },
-  mounted() {
-    console.log(this.$parent);
-    // this.$parent.$el.addEventListener('click', (e) => {
-    //   console.log(e)
-    //   // if()
-    //   this.showList = false;
-    // });
+  watch: {
+    modelValue(value) {
+      if (value) {
+        this.setItem(value);
+      }
+    }
   },
   computed: {
     select: {
       get() {
-        return get(this, 'modelValue.text') || get(this, 'modelValue.name');
+        return get(this, "modelValue.text") || get(this, "modelValue.name");
       },
       set(value) {
-        this.$emit('update:modelValue', value);
-      },
-    },
-  },
+        this.$emit("update:modelValue", value);
+      }
+    }
+  }
 };
 </script>
 

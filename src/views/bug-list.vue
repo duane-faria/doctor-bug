@@ -3,7 +3,15 @@
     <div class="flex-1 p-5 text-2xl font-bold bg-gray-50 h-full min-h-screen">
       <header class="flex justify-between px-4">
         <h1 class="font-light">bugs abertos</h1>
-        <Button type="success" @click="openInsertBug = true">
+        <Button
+          type="success"
+          @click="
+            () => {
+              bugParam = null;
+              openInsertBug = true;
+            }
+          "
+        >
           Novo
         </Button>
       </header>
@@ -18,7 +26,11 @@
         @delete="deleteBug"
       />
     </div>
-    <BugRegistration @newBug="addBug" v-model:open="openInsertBug" />
+    <BugRegistration
+      :bugParam="bugParam"
+      @newBug="addBug"
+      v-model:open="openInsertBug"
+    />
     <!--  -->
   </div>
 </template>
@@ -53,16 +65,19 @@ export default {
     ],
     bugs: [],
     bug: {},
-    openInsertBug: false
+    openInsertBug: false,
+    bugParam: null
   }),
   methods: {
     ...mapActions(["setLoading"]),
-    addBug(bug) {
-      this.bugs.push(bug);
-      this.mapBugs();
+    addBug() {
+      // this.bugs.push(bug);
+      // this.mapBugs();
+      this.getBugs();
     },
-    editBug() {
+    editBug(param) {
       this.openInsertBug = true;
+      this.bugParam = param;
     },
     async deleteBug(id) {
       await bugService.delete(id);

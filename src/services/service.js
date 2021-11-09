@@ -10,6 +10,10 @@ class Service {
     return axios.post(this.url, object);
   }
 
+  update(object) {
+    return axios.put(this.url, object);
+  }
+
   get(params) {
     return axios.get(`${this.url}/${params}`);
   }

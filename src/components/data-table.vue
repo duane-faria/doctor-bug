@@ -39,9 +39,18 @@
             {{ col[key] }}
           </td>
           <td v-if="config">
-            <button @click="$emit('edit', col.id)">editar</button>
+            <button @click="$emit('edit', col)">editar</button>
             <button @click="$emit('delete', col.id)">deletar</button>
           </td>
+        </tr>
+      </tbody>
+      <tbody v-if="data.length === 0">
+        <tr
+          class="font-light text-sm w-full bg-white px-3 cursor-pointer"
+          style="height:40px;"
+          @click="$emit('rowClick', col)"
+        >
+          <td :colspan="headers.length * 2" class="w-full text-center">Nenhum dado encontrado</td>
         </tr>
       </tbody>
     </table>

@@ -9,7 +9,7 @@
       </header>
       <data-table @rowClick="goToBugs" :headers="headers" :data="projects" />
     </div>
-    <!--  -->
+    <ProjectRegistration @addProject="addProject" v-model="openInsertBug" />
   </div>
 </template>
 
@@ -17,20 +17,20 @@
 import { mapActions, mapGetters } from "vuex";
 
 import DataTable from "@/components/data-table";
-// import BugRegistration from "@/components/bug-registration";
+import ProjectRegistration from "@/components/project-registration";
 import Button from "@/components/button";
 import projectService from "@/services/project";
 
 export default {
   components: {
     DataTable,
-    // BugRegistration,
+    ProjectRegistration,
     Button
   },
   data: () => ({
     headers: [
       { text: "Nome", key: "name" },
-      { text: "Criado em", key: "createdAt" }
+      { text: "Criado em", key: "createdAtLabel" }
     ],
     projects: [],
     bug: {},
@@ -57,6 +57,14 @@ export default {
         }
       });
     },
+    async addProject(projectName) {
+      await projectService.create({
+        name: projectName,
+        team_id: this.getUser.team_id
+      });
+      this.openInsertBug = false;
+      this.getProjects();
+    },
     async getProjects() {
       try {
         this.setLoading(true);
@@ -64,6 +72,15 @@ export default {
           data: { data }
         } = await projectService.getAll(`/${this.getUser.team_id}`);
         this.projects = data;
+        this.projects.forEach(project => {
+          if (project.createdAt) {
+            project.createdAtLabel = project.createdAt
+              .split("T")[0]
+              .split("-")
+              .reverse()
+              .join('/');
+          }
+        });
       } catch (error) {
         console.error(error);
       } finally {
