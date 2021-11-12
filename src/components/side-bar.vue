@@ -142,10 +142,12 @@ export default {
     }
   },
   created() {
-    teamService.get(this.getUser.team_id).then(({ data: { data: team } }) => {
-      this.team.name = team.name;
-      this.team.code = team.code;
-    });
+    if (this.getUser) {
+      teamService.get(this.getUser.team_id).then(({ data: { data: team } }) => {
+        this.team.name = team.name;
+        this.team.code = team.code;
+      });
+    }
   }
 };
 </script>

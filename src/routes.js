@@ -21,7 +21,11 @@ const routes = [
     }
   },
   { path: "/register", component: Register, name: "Register" },
-  { path: "/projects", component: Project, name: "ProjectList" },
+  {
+    path: "/projects", component: Project, name: "ProjectList", meta: {
+      requiresAuth: true,
+    }
+  },
   { path: "/:pathMatch(.*)", component: NotFound, name: 'NotFound' },
 ];
 
